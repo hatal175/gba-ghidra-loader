@@ -147,13 +147,13 @@ public class GBALoader extends AbstractLibrarySupportLoader {
 			Memory mem = program.getMemory();
 			MemoryBlock memblock;
 			// WRAM - On-board Work RAM
-			if (LOAD_BASE != 0x2000000) {
+			if (LOAD_BASE >= 0x3000000) {
 				memblock = mem.createUninitializedBlock("WRAMB", flatAPI.toAddr(0x2000000), 0x40000, false);
 				memblock.setRead(true);
 				memblock.setWrite(true);
 				memblock.setExecute(true);
 			} else {
-				memblock = mem.createUninitializedBlock("WRAMB", flatAPI.toAddr(0x2000000 + provider.length()), 0x40000 - provider.length(), false);
+				memblock = mem.createUninitializedBlock("WRAMB", flatAPI.toAddr(LOAD_BASE + provider.length()), 0x40000 - provider.length(), false);
 				memblock.setRead(true);
 				memblock.setWrite(true);
 				memblock.setExecute(false);
