@@ -137,15 +137,27 @@ public class GBALoader extends AbstractLibrarySupportLoader {
 		// First 192 (0xC0) bytes is the Cartridge header
 		// Load base is 0x08000000
 		long LOAD_BASE = 0x08000000;
+		for (Option opt : options) {
+			if (opt.getName() == "Base Address") {
+				LOAD_BASE = ((Integer) opt.getValue());
+			}
+		}
 
 		try {
 			Memory mem = program.getMemory();
 			MemoryBlock memblock;
 			// WRAM - On-board Work RAM
-			memblock = mem.createUninitializedBlock("WRAMB", flatAPI.toAddr(0x2000000), 0x40000, false);
-			memblock.setRead(true);
-			memblock.setWrite(true);
-			memblock.setExecute(false);
+			if (LOAD_BASE != 0x2000000) {
+				memblock = mem.createUninitializedBlock("WRAMB", flatAPI.toAddr(0x2000000), 0x40000, false);
+				memblock.setRead(true);
+				memblock.setWrite(true);
+				memblock.setExecute(true);
+			} else {
+				memblock = mem.createUninitializedBlock("WRAMB", flatAPI.toAddr(0x2000000 + provider.length()), 0x40000 - provider.length(), false);
+				memblock.setRead(true);
+				memblock.setWrite(true);
+				memblock.setExecute(false);
+			}
 			// WRAM - On-chip Work RAM
 			memblock = mem.createUninitializedBlock("WRAMC", flatAPI.toAddr(0x3000000), 0x8000, false);
 			memblock.setRead(true);
@@ -618,7 +630,7 @@ public class GBALoader extends AbstractLibrarySupportLoader {
 			super.getDefaultOptions(provider, loadSpec, domainObject, isLoadIntoProgram);
 
 		// Note: If this loader has custom options, add them to 'list'
-		//list.add(new Option("Option name goes here", "Default option value goes here"));
+		list.add(new Option("Base Address", 0x08000000));
 
 		return list;
 	}
